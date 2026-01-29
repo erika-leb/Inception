@@ -1,6 +1,32 @@
-COMMANDES :
-- BUILD = docker built (-t nginx) srcs?requirements/nginx
+COMMANDES (en minuscule, a preceder de 'docker'):
+- BUILD = docker build (-t nginx) srcs/requirements/nginx
   -t nginx : sert a donner un nom specifique a l'image creee
 
-- RUN = focker run nginx
+- RUN = docker run nginx
   -it : sert a ouvrir le terminal du conteneur a son lancement
+  -d : detach, pour que le conteneur tourne en arriere plan
+  --name <nom> : nommer le process du conteneur pour qu'il soit plus facile a retrouver
+
+- EXEC = run <container_id (or name)> + commande
+  => executer une commande a l'interieur du conteneur
+  -it : i -> interactif (garde l'entree standard ouverte)
+    t -> tty (simule un terminal)
+
+
+Fonctionnement de TLS:
+la commande openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=login.42.fr/UID=login"
+permet de demander un certificat SSL (le certficat est stocke dans out et la cle dans keyout)
+1) certificat = carte d'identite
+role = prouver que le site est celui qu'il pretend etre
+ce qu'il contient = nom de domaine (ex: erika.42.fr), nom de l'autorité qui l'a signé, et clé publique
+2) cle privee = clef du coffre (secret)
+role = dechifrer les donnees que les clients ont envoyees en utilisant la clef publique
+securite = Si quelqu'un vole ta clé privée, il peut usurper ton identité et lire les messages cryptés destinés à ton serveur
+
+Pourquoi creer un fichier /var/run/nginx ?
+Ce dossier sert à stocker ce qu'on appelle un PID file (Process ID).
+-Le concept : Quand Nginx se lance, il écrit son numéro d'identité (le PID) dans un petit fichier à cet endroit précis. 
+Cela permet au système de savoir si Nginx est déjà en train de tourner et de pouvoir l'arrêter proprement.
+-Le problème Docker : Dans certaines versions de Debian/Alpine (les images de base que tu utilises pour Docker), ce dossier n'existe pas par défaut ou n'a pas les bonnes permissions. 
+Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID, il va crash instantanément avec une erreur.
+=> il s'agit de modifier les dossiers systeme a l'interieur du conteneur
