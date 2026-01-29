@@ -16,3 +16,13 @@ RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/ngin
 RUN mkdir -p /var/run/nginx 
 #2. on remplace la config par defaut de nginx par la notre
 COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+# RUN echo "<h1>Hello Inception ! Yes we can.</h1>" > /var/www/html/index.html
+
+#on change les droits de notre root principal
+RUN chmod 755 /var/www/wordpress
+#on change le proprietaire de var/www/html qui passe de root a www-data(user):www-data9groupe du user)
+RUN chown -R www-data:www-data /var/www/wordpress
+
+#on lance le programme nginx (-g : global directive qui ne passe pas par le fichier de conf) avec "deamon" car sinon certains processus "enfant" appele deamon de nginx se detacheraient du parentet docker eteindrait automatiquement le conteneur 
+CMD ["nginx", "-g", "daemon off;"]
