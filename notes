@@ -1,0 +1,6 @@
+COMMANDES :
+- BUILD = docker built (-t nginx) srcs?requirements/nginx
+  -t nginx : sert a donner un nom specifique a l'image creee
+
+- RUN = focker run nginx
+  -it : sert a ouvrir le terminal du conteneur a son lancement
