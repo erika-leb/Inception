@@ -30,3 +30,10 @@ Cela permet au système de savoir si Nginx est déjà en train de tourner et de 
 -Le problème Docker : Dans certaines versions de Debian/Alpine (les images de base que tu utilises pour Docker), ce dossier n'existe pas par défaut ou n'a pas les bonnes permissions. 
 Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID, il va crash instantanément avec une erreur.
 => il s'agit de modifier les dossiers systeme a l'interieur du conteneur
+
+Filesystem Hierarcy Standard (FHS); dossiers:
+-  /usr/local/bin = executables installes par l'utilisateur (localise ici ils sont appelable partout)
+- /etc = configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
+- /var/www = dossier standard de stockage des donnees variables de serveur web
+- /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
+- /run = contient les fichiers d'execution, qui sont donnees volatiles sur l'etat du systeme depuis son demarrage

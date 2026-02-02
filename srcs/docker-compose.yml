@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  mariadb:
+    container_name: mariadb
+    networks:
+      -inception  #a quel network il appartient
+    build:
+      context: ./srcs/requirements/mariadb #localisation du Dockerfile
+    env_file: .env        #localisation du fichier d'environnement
+    volumes:
+      -mariadb:/var/lib/mysql
+    restart: unless-stopped  #redemarre tant qu'il n'est pas stoppe
+    expose:
+      -"3306"
