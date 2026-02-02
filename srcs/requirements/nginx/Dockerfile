@@ -1,4 +1,6 @@
-# FROM debian:bookworm
+#NGONX est un serveru web, il agit comme un proxy, ce aui correspond a un routeur logiciel
+
+FROM debian:bookworm
 FROM public.ecr.aws/debian/debian:bookworm
 
 #instalation des programmes basiques
@@ -24,5 +26,8 @@ RUN chmod 755 /var/www/wordpress
 #on change le proprietaire de var/www/html qui passe de root a www-data(user):www-data9groupe du user)
 RUN chown -R www-data:www-data /var/www/wordpress
 
+#declaration du port utilise dans l'image
+EXPOSE 443
+
 #on lance le programme nginx (-g : global directive qui ne passe pas par le fichier de conf) avec "deamon" car sinon certains processus "enfant" appele deamon de nginx se detacheraient du parentet docker eteindrait automatiquement le conteneur 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
