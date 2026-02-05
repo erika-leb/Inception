@@ -5,6 +5,11 @@
 #     sleep 3
 # done
 
+# Récupération des secrets
+#QL_PASSWORD=$(cat /run/secrets/sql_password)
+#WP_PASSWORD=$(cat /run/secrets/wp_password)
+
+
 echo "Waiting for Mariadb... (10s)"
 sleep 10
 
@@ -20,7 +25,7 @@ if [ ! -f wp-config.php ]; then
 fi
 
 #installer wordpress (remplissage de la base de donnees)
-if ! wp code is-installed --allow-root; then
+if ! wp core is-installed --allow-root; then
     wp core install  --allow-root \
                         --url=$DOMAIN_NAME \
                         --title=$WP_TITLE \

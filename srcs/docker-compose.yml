@@ -6,9 +6,9 @@ services:
     build:
       context: ./requirements/mariadb #localisation du Dockerfile
     env_file: .env        #localisation du fichier d'environnement
-    #secrets:
-    #  - sql_password
-    #  - sql_root_password
+    secrets:
+      - sql_password
+      - sql_root_password
     volumes:
       - mariadb:/var/lib/mysql
     restart: unless-stopped  #redemarre tant qu'il n'est pas stoppe
@@ -28,7 +28,7 @@ services:
       - wordpress:/var/www/wordpress
     restart: on-failure  #redemarre si crash
     ports:
-      - "443:433" #port expose a la machine local"
+      - "443:443" #port expose a la machine local"
 
   wordpress:
     container_name: wordpress
@@ -39,9 +39,9 @@ services:
     build:
       context: ./requirements/wordpress
     env_file: .env 
-    #secrets:
-    #  - sql_password
-    #  - wp_password
+    secrets:
+      - sql_password
+      - wp_password
     volumes:
       - wordpress:/var/www/wordpress
     restart: on-failure  #redemarre si crash

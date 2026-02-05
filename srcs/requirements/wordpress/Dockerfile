@@ -18,11 +18,11 @@ RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
 #configuration
-COPY conf/php.conf /etc/php/8.2/fmp/pool.d/www.conf
+COPY conf/php.conf /etc/php/8.2/fpm/pool.d/www.conf
 COPY auto_config.sh /usr/local/bin/auto_config.sh
 
 RUN chmod +x /usr/local/bin/auto_config.sh
 
 EXPOSE 9000
 
-ENTRYPOINT ["bin/bash", "/usr/local/bin/auto_config.sh"]
+ENTRYPOINT ["/bin/bash", "/usr/local/bin/auto_config.sh"]
