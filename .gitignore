@@ -1,7 +1,7 @@
 # --- SÉCURITÉ ---
 # On ne push JAMAIS les secrets
-.env
-*.env
+srcs/.env
+srcs/*.env
 secrets/
 
 # --- DOCKER ---
