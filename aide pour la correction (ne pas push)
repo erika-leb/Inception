@@ -3,3 +3,12 @@ laisser un commentaire
 aller sur ele-borg.42.fr/wp-admin et accpeter le commentaire
 revenir en mode non admin 
 ajouter un article
+
+aller regarder la BD 
+docker ps
+docker exec -it <mariadb ID> /bin/sh
+mariadb -h localhost -u root -p
+show databases;
+use <databaseName>;
+show tables;
+select * from <table>;

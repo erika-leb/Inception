@@ -6,8 +6,8 @@
 # done
 
 # Récupération des secrets
-#QL_PASSWORD=$(cat /run/secrets/sql_password)
-#WP_PASSWORD=$(cat /run/secrets/wp_password)
+QL_PASSWORD=$(cat /run/secrets/sql_password)
+WP_PASSWORD=$(cat /run/secrets/wp_password)
 
 
 echo "Waiting for Mariadb... (10s)"
