@@ -1,3 +1,16 @@
+DEFINITION
+
+- Image = packqge contenant du code, des statiaqes, des dependances, le tout inactif
+
+- Conteneur = activation d'une image de facon a faire tourner un processus
+
+- docker-compose = fichier servant a decrire une application  multi-conteneurs dans  un fichier texte puis de la lancer
+avantages = -- regrouper plusieurs conteneurs en un projet
+-- gerer automatiquement le reseau (cree automatiquement)
+-- gerer les volumes
+-- definir les dependances (ie ordre de demarrage logique des conteneurs)
+-- lancer et arreter toute l'application en une seule commande (docker-compose up et docker-compose down)
+
 COMMANDES (en minuscule, a preceder de 'docker'):
 - BUILD = docker build (-t nginx) srcs/requirements/nginx
   -t nginx : sert a donner un nom specifique a l'image creee
@@ -11,6 +24,25 @@ COMMANDES (en minuscule, a preceder de 'docker'):
   => executer une commande a l'interieur du conteneur
   -it : i -> interactif (garde l'entree standard ouverte)
     t -> tty (simule un terminal)
+
+- BUILD et RUN du fichier .yaml
+docker compose up -d --build
+
+- BUIL yaml
+docker compose build
+
+- RUN le yaml
+docker compose up
+
+- ARRETER le YAML
+docker compose stop
+
+- REDEMARRER le YAML
+docker compose start
+
+- SUPPRIMER le YAML (build)
+docker compose down (supprime conteneur et reseaux)
+docker compose down -v  (supprime aussi les volumes)
 
 
 Fonctionnement de TLS:
@@ -34,6 +66,8 @@ Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID,
 Filesystem Hierarcy Standard (FHS); dossiers:
 -  /usr/local/bin = executables installes par l'utilisateur (localise ici ils sont appelable partout)
 - /etc = configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
-- /var/www = dossier standard de stockage des donnees variables de serveur web
+- /var/www = dossier standard de stockage des donnees variables (ie qui changent pendant l'execution) de serveur web 
+--/var/lib : données persistantes propres à un service
+--/var/www : convetion Lunix pour les fichiers web
 - /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
 - /run = contient les fichiers d'execution, qui sont donnees volatiles sur l'etat du systeme depuis son demarrage

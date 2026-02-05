@@ -5,7 +5,7 @@ FROM public.ecr.aws/debian/debian:bookworm
 RUN apt update && apt upgrade -y
 RUN apt-get install mariadb-server -y
 
-COPY conf/mariadb.conf /etc/mysql/mariadb.d/mariadb.conf
+COPY conf/mariadb.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 COPY mariadb.sh /tmp/mariadb.sh
 
 RUN chmod +x /tmp/mariadb.sh

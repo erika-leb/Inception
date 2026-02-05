@@ -1,0 +1,8 @@
+# --- SÉCURITÉ ---
+# On ne push JAMAIS les secrets
+.env
+*.env
+secrets/
+
+# --- DOCKER ---
+.docker/

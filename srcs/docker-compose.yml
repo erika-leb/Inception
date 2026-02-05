@@ -1,15 +1,75 @@
-version: '3'
-
 services:
   mariadb:
     container_name: mariadb
     networks:
-      -inception  #a quel network il appartient
+      - inception  #seuls les conteneurs de ce reseaux peuvent se voir
     build:
-      context: ./srcs/requirements/mariadb #localisation du Dockerfile
+      context: ./requirements/mariadb #localisation du Dockerfile
     env_file: .env        #localisation du fichier d'environnement
+    #secrets:
+    #  - sql_password
+    #  - sql_root_password
     volumes:
-      -mariadb:/var/lib/mysql
+      - mariadb:/var/lib/mysql
     restart: unless-stopped  #redemarre tant qu'il n'est pas stoppe
     expose:
-      -"3306"
+      - "3306"
+
+  nginx:
+    container_name: nginx
+    networks:
+      - inception  
+    depends_on:
+      - wordpress
+    build:
+      context: ./requirements/nginx
+    env_file: .env    
+    volumes:
+      - wordpress:/var/www/wordpress
+    restart: on-failure  #redemarre si crash
+    ports:
+      - "443:433" #port expose a la machine local"
+
+  wordpress:
+    container_name: wordpress
+    networks:
+      - inception  
+    depends_on:
+      - mariadb
+    build:
+      context: ./requirements/wordpress
+    env_file: .env 
+    #secrets:
+    #  - sql_password
+    #  - wp_password
+    volumes:
+      - wordpress:/var/www/wordpress
+    restart: on-failure  #redemarre si crash
+    expose:
+      - "9000" #port expose a la machine local"
+
+volumes:
+  wordpress:
+    driver: local  #stockage local sur le pc, pas dans le cloud ou ailleurs
+    driver_opts:
+      type: 'none'  #pas de type special
+      o: 'bind'     #indique a docker de faire un bind mount ie de relier le dossier de l'hote (device) a un chemin dans le conteneur
+      device: '/home/erika/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
+  mariadb:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/erika/data/mariadb'
+
+networks:
+  inception:
+    driver: bridge
+
+secrets:
+  sql_password:
+    file: ../secrets/sql_password.txt
+  sql_root_password:
+    file: ../secrets/sql_root_password.txt
+  wp_password:
+    file: ../secrets/wp_password.txt

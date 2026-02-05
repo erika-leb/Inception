@@ -21,6 +21,7 @@ COPY conf/nginx.conf /etc/nginx/nginx.conf
 
 # RUN echo "<h1>Hello Inception ! Yes we can.</h1>" > /var/www/html/index.html
 
+RUN mkdir -p /var/www/wordpress
 #on change les droits de notre root principal
 RUN chmod 755 /var/www/wordpress
 #on change le proprietaire de var/www/html qui passe de root a www-data(user):www-data9groupe du user)
