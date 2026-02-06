@@ -1,7 +1,7 @@
-#NGONX est un serveru web, il agit comme un proxy, ce aui correspond a un routeur logiciel
+#NGINX est un serveur web, il agit comme un proxy, ce aui correspond a un routeur logiciel
 
 FROM debian:bookworm
-FROM public.ecr.aws/debian/debian:bookworm
+#FROM public.ecr.aws/debian/debian:bookworm
 
 #instalation des programmes basiques
 RUN apt update && apt install nginx -y

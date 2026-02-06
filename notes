@@ -1,5 +1,7 @@
 DEFINITION
 
+- serveur demon = programme tournant en arriere plan et gerant les donnees
+
 - Image = packqge contenant du code, des statiaqes, des dependances, le tout inactif
 
 - Conteneur = activation d'une image de facon a faire tourner un processus

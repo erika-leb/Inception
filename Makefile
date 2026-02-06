@@ -1,28 +1,30 @@
 DOCKER_COMPOSE = srcs/docker-compose.yml
 
+all: up
+
 build:
 	docker compose -f $(DOCKER_COMPOSE) build
 
+#Docker va cree automatiquement les fichier si je ne le fait mais avec les droits root, je ne pourrais pas forcement y acceder en tant q'utilisateur
 up:
-	docker compose -f $(DOCKER_COMPOSE) up
+	mkdir -p /home/erika/data/mariadb
+	mkdir -p /home/erika/data/wordpress
+	docker compose -f $(DOCKER_COMPOSE) up -d --build
+# 	docker compose -f $(DOCKER_COMPOSE) up --build
 
 down:
 	docker compose -f $(DOCKER_COMPOSE) down
 
-
 logs:
-	docker compose logs -f
+	docker compose -f $(DOCKER_COMPOSE) logs -f
 
-re:
-	docker compose -f $(DOCKER_COMPOSE) down
-	docker compose -f $(DOCKER_COMPOSE) up --build
+re: fclean up
 
 clean:
-	$(COMPOSE) down -v --remove-orphans
+	docker compose -f $(DOCKER_COMPOSE) down -v --remove-orphans
 	
-fclean:
-	$(COMPOSE) down -v --remove-orphans --rmi all --volumes
+fclean: clean
+	sudo rm -rf /home/erika/data/mariadb/*
+	sudo rm -rf /home/erika/data/wordpress/*
 
-restart: down up
-
-.PHONY: up down re clean fclean logs restart
+.PHONY: all up down re clean fclean logs 

@@ -1,12 +1,15 @@
 aller sur ele-borg.42.fr
 laisser un commentaire
 aller sur ele-borg.42.fr/wp-admin et accpeter le commentaire
-revenir en mode non admin 
-ajouter un article
+dans la barre de gauche, chercher article, ajouter un article
+publier un article
+retourner sur la page de base pour voir le commentaire et l'article
 
 aller regarder la BD 
 docker ps
+# pour communiquer avec le conteneur mariadb a dvl
 docker exec -it <mariadb ID> /bin/sh
+# pour communiquer directement avec la base de donne a dvl
 mariadb -h localhost -u root -p
 show databases;
 use <databaseName>;
