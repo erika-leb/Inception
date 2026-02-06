@@ -1,8 +1,0 @@
-# --- SÉCURITÉ ---
-# On ne push JAMAIS les secrets
-srcs/.env
-srcs/*.env
-secrets/
-
-# --- DOCKER ---
-.docker/
