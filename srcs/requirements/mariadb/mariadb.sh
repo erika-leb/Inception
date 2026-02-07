@@ -2,13 +2,8 @@
 SQL_ROOT_PASSWORD=$(cat /run/secrets/sql_root_password)
 SQL_PASSWORD=$(cat /run/secrets/sql_password)
 
-#mariadb -h localhost -u root -p$SQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
-#mariadb -h localhost -u root -p$SQL_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
-#mariadb -h localhost -u root -p$SQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-#mariadb -h localhost -u root -p$SQL_ROOT_PASSWORD -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-#mariadb -h localhost -u root -p$SQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
-#mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
-
+# commande pour verifier l'existence du dossier /var/lib/mysql/$SQL_DATABASE (/var/lib/mysql/ est le chemin standard ou mariadb sotcker ses donnees)
+# [] n'est pas une syntaxe mais une commande a part entiere (les espaces sont importants pour la syntaxe), un programme executable alias de la commande test
 if [ -d "/var/lib/mysql/$SQL_DATABASE" ]; then
     echo "Base de données déjà existante. Démarrage normal."
 else
@@ -18,8 +13,11 @@ else
     service mariadb start
     
     # ATTENTE ACTIVE : On attend que le serveur soit réellement prêt
-    # C'est souvent là que ça plante : le service start rend la main trop vite
-    sleep 10
+    # sleep 10
+    echo "Attente du démarrage de MariaDB..."
+    until mariadb-admin -u root ping >/dev/null 2>&1; do
+        sleep 1
+    done
 
     # Note: Au premier lancement, root n'a PAS de mot de passe, donc pas de -p
     # Création de la db, création de l'utilisateur erika avec tous les droits sur la db, rechargement imediats des droits
@@ -33,32 +31,31 @@ else
     
     # Extinction propre du serveur temporaire
     # Ici, on doit utiliser le mot de passe qu'on vient de définir
-    mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
+    #mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
+    mariadb-admin -u root -p$SQL_ROOT_PASSWORD shutdown
     
     echo "Configuration terminée."
 fi
 
-## Vérification acces et configuration
-#if mariadb -u root -e "status" >/dev/null 2>&1; then
-#    # Ici on est connecté sans mot de passe, donc pas de -p
-#    mariadb -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
-#    mariadb -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-#    mariadb -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%';"
-#    
-#    # C'est CETTE ligne qui crée le mot de passe root
-#    mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-#    mariadb -e "FLUSH PRIVILEGES;"
-#fi
-
-#Extinction propre
-#mariadb-admin -u root -p$SQL_ROOT_PASSWORD shutdown
-
-# 3. Lancement final
-# exec remplace le processus shell actuel par mysqld, le gardant en PID 1
+# 3. Lancement final du processus du conteneur
+# exec <programme> est une commande qui remplace le processus actuel par <programme> 
+# (sans exec le nouveau processus serait un processus enfant); le gardant en PID 1
 echo "Démarrage définitif de MariaDB..."
-exec mysqld_safe
+exec mysqld
 
-#sans exec mysqld aurait ete lance comme enfant
 
-#lancement final du processus du conteneur
-#exec mysqld
+
+
+# NOTES sur les commandes
+# - mariadb = client interface, outil de dialogue (CLI = client en langue de commande); 
+#    Il sert uniquement à envoyer des requêtes écrites en langage SQL vers le serveur (le démon mysqld) et à afficher la réponse
+#   la commande mariadb seule ouvre un 'shell' interatif ou taper les commandes
+#   le drapeau -e permet d'envoyer la commande sans ouvrir l'interface interactive (Execute)
+# - mariadb-admin = utilitaire d'administration systeme (langage = commandes systemes); 
+#   Il ne sert pas à manipuler les données (il ne comprend pas le SELECT * FROM...), mais à manipuler le processus du serveur.
+#   ex = -- ping : Est-ce que tu es allumé ?
+#   -- shutdown : Éteins-toi proprement (ferme les fichiers, enregistre tout).
+#   -- version : Quelle version utilises-tu ?
+#   -- reload : Relis tes fichiers de configuration.
+# - mysql = souvent lien symbolique vers mariadb (meme binaire)
+# NB : mysqld (avec un d a la fin) est le serveur demon (langage = binaire)

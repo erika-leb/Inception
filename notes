@@ -1,5 +1,9 @@
 DEFINITION
 
+- processus = programme en cours d'execution
+
+- serveur = processus dont le role est de repondre aux requetes envoyees par des clients via un reseau
+
 - serveur demon = programme tournant en arriere plan et gerant les donnees
 
 - Image = packqge contenant du code, des statiaqes, des dependances, le tout inactif

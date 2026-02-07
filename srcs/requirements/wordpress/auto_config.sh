@@ -10,8 +10,8 @@ SQL_PASSWORD=$(cat /run/secrets/sql_password)
 WP_PASSWORD=$(cat /run/secrets/wp_password)
 
 
-echo "Waiting for Mariadb... (20s)"
-sleep 20
+# echo "Waiting for Mariadb... (20s)"
+# sleep 20
 
 cd /var/www/wordpress
 
