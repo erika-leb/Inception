@@ -77,3 +77,16 @@ Filesystem Hierarcy Standard (FHS); dossiers:
 --/var/www : convetion Lunix pour les fichiers web
 - /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
 - /run = contient les fichiers d'execution, qui sont donnees volatiles sur l'etat du systeme depuis son demarrage
+
+
+
+
+DNS (Domain Name System ou systeme de nom de domaine)
+C'est un système de traduction indispensable dans un réseau informatique.
+
+- Le problème : Les ordinateurs ne communiquent qu'avec des adresses IP (ex : 192.168.1.15). Mais les humains (et les configurations logicielles) préfèrent utiliser des noms (ex : google.com ou mariadb)
+
+- La solution (DNS) : C'est un annuaire automatique. Quand tu tapes google.com, le serveur DNS cherche dans sa liste et répond à ton ordinateur : "L'adresse IP de https://www.google.com/url?sa=E&source=gmail&q=google.com est 142.250.75.100". Ton ordinateur se connecte alors à cette IP.
+
+Dans Inception, Docker possède son propre DNS interne.
+

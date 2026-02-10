@@ -1,0 +1,45 @@
+# Developer Documentation
+
+This document provides technical instructions for developers to set up, build, and manage the Inception infrastructure.
+
+---
+
+### Environment Setup
+
+To set up the development environment from scratch, follow these steps:
+
+**1. Prerequisites**
+* Operating System: Linux (preferred) or a VM running Linux.
+* Tools: **Docker** (Engine and CLI) and **Docker Compose**.
+* Privileges: Sudo access to modify system files and manage Docker.
+
+**2. Configuration Files**
+Create a `.env` file at the root with thefollowing data :
+SQL_DATABASE=[db_name]
+SQL_USER=[user_name]
+SQL_HOST=mariadb
+WP_TITLE=[site_name]
+WP_USER=[admin_login]
+WP_EMAIL=[mail]
+DOMAIN_NAME=ele-borg.42.fr
+
+**3. Secrets Setup**
+Sensitive data is managed via the `secrets/` directory. Create this folder at the root and add the following files:
+* `sql_password.txt`: The database user password.
+* `sql_root_password.txt`: The database root password.
+* `wp_password.txt`: The WordPress administrator password.
+
+---
+
+### Building and Launching the Project
+
+The project is orchestrated using **Docker Compose** and managed via a **Makefile** to ensure consistency.
+
+### Execution
+The project is managed via a Makefile. Note that the up command automatically creates the necessary data directories in /home/erika/data/ to ensure volume persistence.
+* make / make up: Creates local directories, builds images, and starts the infrastructure in detached mode.
+* make down: Stops the containers but keeps the volumes and data intact.
+* make clean: Stops containers and removes volumes and orphan networks.
+* make fclean: Performs a full clean and deletes all data in /home/erika/data/.
+* make re: Triggers a full reset (fclean) and restarts the infrastructure.
+* make logs: Displays real-time logs for all containers.
