@@ -37,6 +37,9 @@ else
     echo "Configuration terminée."
 fi
 
+# mkdir -p /run/mysqld
+# chown -R mysql:mysql /run/mysqld
+
 # 3. Lancement final du processus du conteneur
 # exec <programme> est une commande qui remplace le processus actuel par <programme> 
 # (sans exec le nouveau processus serait un processus enfant); le gardant en PID 1

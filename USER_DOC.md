@@ -7,8 +7,8 @@ This documentation provides essential information for administrators and users t
 ### Services Provided by the Stack
 The infrastructure orchestrates three services that work together to host a secure web application:
 
-* **NGINX**: Acts as the single entry point for the infrastructure. It is configured as a web server using TLS 1.3 to ensure all external communications are encrypted.
-* **WordPress**: The content management system (CMS) that processes the website's logic. It runs via PHP-FPM to handle dynamic content.
+* **NGINX**: Acts as the single entry point for the infrastructure throught the exposure on host port 443. It is configured as a front end web server that handles HTTPS and proxiew request to Wordpress.
+* **WordPress**: The content management system (CMS) that processes the website's logic. It runs via PHP-FPM to handle dynamic content adn connect to MariaDB to store data.
 * **MariaDB**: The relational database management system. It securely stores all site data, including user profiles, posts, and system configurations.
 
 ---

@@ -7,7 +7,7 @@
 ## Description
 
 The Inception project introduces the fundamentals of system administration using Docker.
-The objective is to create and deploy a small infrastructure composed of different services, each running in its own Docker container.
+The objective is to create and deploy a small infrastructure composed of different services, each running in its own Docker container. This infrastructure will provide a Wordpress website accessible with HTTPS with automated setup and persistent data.
 
 The setup consists of multiple services running in separate containers, managed by **Docker Compose**. This environment includes:
 * A **MariaDB** database for data storage.
@@ -25,6 +25,7 @@ The setup consists of multiple services running in separate containers, managed 
 
 ### Installation
 1.  Clone the repository.
+
 2.  Create a `.env` file at the root with thefollowing data :
     SQL_DATABASE=[db_name]
     SQL_USER=[user_name]
@@ -35,7 +36,13 @@ The setup consists of multiple services running in separate containers, managed 
     DOMAIN_NAME=ele-borg.42.fr
 
 3. Create a `secrets` folder at the root with 3 files (`sql_password.txt`, `sql_root_password.txt` and `wp_password.txt`) and write down in every file the password of your choice.
-4.  Add the domain to your host file:
+
+4.  Volumes are bind-mounted to the host system. You must adapt the paths in `docker-compose.yml` and `Makefile` to match your current system user to avoid "Permission Denied" errors.
+- MariaDB data → /home/[user]/data/mariadb
+- WordPress data → /home/[user]/data/wordpress
+To identify your current username, run the following command in your terminal: whoami
+
+5.  Add the domain to your host file:
     enter the command 'sudo nano /etc/hosts' in your terminal and write down the line "127.0.0.1 ele-borg.42.fr" in the file
 
 ### Execution
@@ -82,9 +89,9 @@ The project relies on:
 
 #### Virtual Machines vs Docker
 
-* Virtual Machines : A VM is a software-based emulation of physical hardware. It runs a complete Guest Operating System, including its own kernel, on top of a hypervisor. This requires dedicated hardware resources (CPU, RAM, and Disk) for each instance.
+* **Virtual Machines** : A VM is a software-based emulation of physical hardware. It runs a complete Guest Operating System, including its own kernel, on top of a hypervisor. This requires dedicated hardware resources (CPU, RAM, and Disk) for each instance.
 
-* Docker: Docker provides OS-level virtualization by creating isolated environments called containers. Unlike VMs, containers share the Host OS kernel and only package the application and its dependencies. 
+* **Docker**: Docker provides OS-level virtualization by creating isolated environments called containers. Unlike VMs, containers share the Host OS kernel and only package the application and its dependencies. 
 This results in:
     * Lower resource consumption
     * Faster startup times
@@ -92,21 +99,21 @@ This results in:
 
 #### Secrets vs Environment Variables
 
-* Environment variables are part of the container's configuration and are visible via inspection tools or process logs, making them suitable for non-sensitive data like database names
-* Secrets are designed for sensitive information such as passwords. They are stored outside the container image and are mounted into a temporary filesystem (RAM) at runtime, preventing sensitive data from being persisted on disk
+* **Environment variables** are part of the container's configuration and are visible via inspection tools or process logs, making them suitable for non-sensitive data like database names
+* **Secrets** are designed for sensitive information such as passwords. They are stored outside the container image and are mounted into a temporary filesystem (RAM) at runtime, preventing sensitive data from being persisted on disk
 
 Secrets are strongly preferred in production environments.
 
 #### Docker Network vs Host Network
 
-*  Docker Network (Bridge) : It creates a private, virtual subnet on the host, with its own DNS. Containers connected to the same bridge network can communicate with each other using internal IP addresses or service names, while remaining isolated from external traffic unless a port is explicitly mapped.
-*  Host Network : In this mode, the container shares the host’s networking namespace directly. The container does not get its own IP address allocated by Docker but uses the host's IP and listens directly on the host's ports.
+*  **Docker Network** (Bridge) : It creates a private, virtual subnet on the host, with its own DNS. Containers connected to the same bridge network can communicate with each other using internal IP addresses or service names, while remaining isolated from external traffic unless a port is explicitly mapped.
+*  **Host Network** : In this mode, the container shares the host’s networking namespace directly. The container does not get its own IP address allocated by Docker but uses the host's IP and listens directly on the host's ports.
 
 #### Docker Volumes vs Bind Mounts
-* Docker Volumes : Mechanism to preserve the data generated and used by Docker containers.
+* **Docker Volumes** : Mechanism to preserve the data generated and used by Docker containers.
 They are completely managed by Docker and stored in a specific part of the host filesystem (/var/lib/docker/volumes/ on Linux). They are independent of the host machine's directory structure, which make them highly portable. Volumes are isolated from the host's non-Docker processes, making them safer for sensitive data like databases.
 Docker manages the lifecycle of Volumes (creation, deletion, and backups) through the Docker CLI.
-* Bind Mounts : It is a direct link between a specific file of directory on the host machine and a path in the container.
+* **Bind Mounts** : It is a direct link between a specific file of directory on the host machine and a path in the container.
 The file or directory is referenced by its absolute path on the host machine, which make it less partable. Unlike volumes, the user or the host operating system manages these files, which can lead to security risks. Unlike volumes also, they are not managed by Docker and rely on the host machine's file system structure and permissions, requiring manual intervention to ensure the paths exist and are accessible.
 
 ---
@@ -115,14 +122,14 @@ The file or directory is referenced by its absolute path on the host machine, wh
 
 #### Documentation
 * Docker Overview: https://docs.docker.com/get-started/overview/
-*Docker Compose Specification: https://docs.docker.com/compose/compose-file/
+* Docker Compose Specification: https://docs.docker.com/compose/compose-file/
 * NGINX Documentation: https://nginx.org/en/docs/
 * MariaDB Knowledge Base: https://mariadb.com/kb/en/
 * WordPress CLI Handbook: https://make.wordpress.org/cli/handbook/
 
 #### AI Usage
 As part of the learning process for this project, AI was used as a pedagogical support tool for the following tasks:
-* Conceptual Learning: Assisting in the overall understanding of the Inception architecture, specifically the interactions between services, the logic of container isolation, and the management of virtual networks.
-* Problem Solving: Providing guidance on troubleshooting complex configuration issues and interpreting system logs to understand the behavior of the infrastructure.
-* Debugging & Logs: Assisting in the interpretation of NGINX and PHP-FPM error logs to identify configuration issues.
-* Formatting: Translating technical notes into English and structuring the final README.md to ensure it meets the project's requirements.
+* **Conceptual Learning**: Assisting in the overall understanding of the Inception architecture, specifically the interactions between services, the logic of container isolation, and the management of virtual networks.
+* **Problem Solving**: Providing guidance on troubleshooting complex configuration issues and interpreting system logs to understand the behavior of the infrastructure.
+* **Debugging & Logs**: Assisting in the interpretation of NGINX and PHP-FPM error logs to identify configuration issues.
+* **Formatting**: Translating technical notes into English and structuring the final README.md to ensure it meets the project's requirements.

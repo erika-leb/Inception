@@ -1,6 +1,7 @@
 services:
   mariadb:
     container_name: mariadb
+    image: mariadb
     networks:
       - inception  #seuls les conteneurs de ce reseaux peuvent se voir
     build:
@@ -25,6 +26,7 @@ services:
 
   nginx:
     container_name: nginx
+    image: nginx
     networks:
       - inception  
     depends_on:
@@ -36,10 +38,11 @@ services:
       - wordpress:/var/www/wordpress
     restart: on-failure  #redemarre si crash
     ports:
-      - "443:443" #port expose a la machine local"
+      - "443:443" #ouvre le port 443 sur l'adresse IP de la VM et le relie au port 443 du conteneur"
 
   wordpress:
     container_name: wordpress
+    image: wordpress
     networks:
       - inception  
     depends_on:
@@ -60,12 +63,14 @@ services:
 
 volumes:
   wordpress:
+    name: wordpress
     driver: local  #stockage local sur le pc, pas dans le cloud ou ailleurs
     driver_opts:
       type: 'none'  #pas de type special
       o: 'bind'     #indique a docker de faire un bind mount ie de relier le dossier de l'hote (device) a un chemin dans le conteneur
       device: '/home/erika/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
   mariadb:
+    name: mariadb
     driver: local
     driver_opts:
       type: 'none'
@@ -74,6 +79,7 @@ volumes:
 
 networks:
   inception:
+    name: inception
     driver: bridge
 
 secrets:
