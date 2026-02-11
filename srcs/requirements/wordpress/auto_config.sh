@@ -7,6 +7,7 @@
 
 # Récupération des secrets
 SQL_PASSWORD=$(cat /run/secrets/sql_password)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WP_PASSWORD=$(cat /run/secrets/wp_password)
 
 
@@ -29,9 +30,16 @@ if ! wp core is-installed --allow-root; then
     wp core install  --allow-root \
                         --url=$DOMAIN_NAME \
                         --title=$WP_TITLE \
-                        --admin_user=$WP_USER \
-                        --admin_password=$WP_PASSWORD \
-                        --admin_email=$WP_EMAIL
+                        --admin_user=$WP_ADMIN \
+                        --admin_password=$WP_ADMIN_PASSWORD \
+                        --admin_email=$WP_ADMIN_EMAIL\
+                        #--allow-root
+
+    # ajout manuel d'un utilisateur. Le role=author lui perlet d'ecrire des articles mais pas de modifier des plins ou themes
+    wp user create ${WP_USER} ${WP_USER_EMAIL} \
+                        --user_pass=${WP_PASSWORD} \
+                        --role=author
+                        #--allow-root 
 fi
 
 echo "Wordpress ready. Launching PHP-FRP"

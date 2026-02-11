@@ -36,7 +36,7 @@ services:
     env_file: .env    
     volumes:
       - wordpress:/var/www/wordpress
-    restart: on-failure  #redemarre si crash
+    restart: on-failure
     ports:
       - "443:443" #ouvre le port 443 sur l'adresse IP de la VM et le relie au port 443 du conteneur"
 
@@ -46,7 +46,6 @@ services:
     networks:
       - inception  
     depends_on:
-      #- mariadb
         mariadb:
           condition: service_healthy
     build:
@@ -54,6 +53,7 @@ services:
     env_file: .env 
     secrets:
       - sql_password
+      - wp_admin_password
       - wp_password
     volumes:
       - wordpress:/var/www/wordpress
@@ -68,14 +68,14 @@ volumes:
     driver_opts:
       type: 'none'  #pas de type special
       o: 'bind'     #indique a docker de faire un bind mount ie de relier le dossier de l'hote (device) a un chemin dans le conteneur
-      device: '/home/erika/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
+      device: '/home/ele-borg/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
   mariadb:
     name: mariadb
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/home/erika/data/mariadb'
+      device: '/home/ele-borg/data/mariadb'
 
 networks:
   inception:
@@ -89,3 +89,5 @@ secrets:
     file: ../secrets/sql_root_password.txt
   wp_password:
     file: ../secrets/wp_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt

@@ -11,7 +11,7 @@ RUN apt install curl -y
 #mise en place du TSL
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=ele-borg.42.fr/UID=login"
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=ele-borg.42.fr/UID=ele-borg"
 
 #gestion de la config
 #1. on cree un fichier nginx pour stocker le PID file (process ID)
