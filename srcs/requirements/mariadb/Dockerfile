@@ -1,7 +1,6 @@
 FROM debian:bookworm
 #FROM public.ecr.aws/debian/debian:bookworm
 
-
 RUN apt update && apt upgrade -y
 RUN apt-get install mariadb-server -y
 

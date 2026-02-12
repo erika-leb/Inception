@@ -10,6 +10,13 @@ DEFINITION
 
 - Conteneur = activation d'une image de facon a faire tourner un processus
 
+- paquet (ou package) = fichier ou ensemble de fichiers contenant un logiciel ou une bibliothèque prête à être installée et permettant son installation; il inclut aussi des informations pour le gestionnaire de paquets (ici apt) comme la version, les dependeances, les scripts d'installation
+
+- dependance = logiciel, bibliotheque ou outil dont un autre programme a besoin pour fonctionner correctement
+
+
+- interface ligne de commande (CLI) = interface basee sur du texte dans laquelle on peut saisir des commandes qui interagissent avec le systeme d'exploitation d'un ordinateur 
+
 - docker-compose = fichier servant a decrire une application  multi-conteneurs dans  un fichier texte puis de la lancer
 avantages = -- regrouper plusieurs conteneurs en un projet
 -- gerer automatiquement le reseau (cree automatiquement)
@@ -61,6 +68,15 @@ ce qu'il contient = nom de domaine (ex: erika.42.fr), nom de l'autorité qui l'a
 role = dechifrer les donnees que les clients ont envoyees en utilisant la clef publique
 securite = Si quelqu'un vole ta clé privée, il peut usurper ton identité et lire les messages cryptés destinés à ton serveur
 
+Comment ça marche lors d’une connexion HTTPS ?
+1. Le client demande une connexion sécurisée à nginx.
+2. Nginx envoie son certificat (contenant la clé publique) au client.
+3. Le client vérifie que le certificat est valide (date, signature de l’autorité, correspondance du nom de domaine).
+4. Le client crée une clé de session (clé symétrique temporaire) et la chiffre avec la clé publique du serveur (dans le certificat).
+5. Le serveur (nginx) déchiffre la clé de session avec sa clé privée.
+6. Maintenant, client et serveur ont une clé symétrique partagée pour chiffrer toute la communication rapidement.
+7. Toute la communication est sécurisée grâce à cette clé symétrique.
+
 Pourquoi creer un fichier /var/run/nginx ?
 Ce dossier sert à stocker ce qu'on appelle un PID file (Process ID).
 -Le concept : Quand Nginx se lance, il écrit son numéro d'identité (le PID) dans un petit fichier à cet endroit précis. 
@@ -71,14 +87,15 @@ Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID,
 
 Filesystem Hierarcy Standard (FHS); dossiers:
 -  /usr/local/bin = executables installes par l'utilisateur (localise ici ils sont appelable partout)
-- /etc = configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
+- /etc = fichiers de configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
 - /var/www = dossier standard de stockage des donnees variables (ie qui changent pendant l'execution) de serveur web 
 --/var/lib : données persistantes propres à un service
 --/var/www : convetion Lunix pour les fichiers web
 - /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
 - /run = contient les fichiers d'execution, qui sont donnees volatiles sur l'etat du systeme depuis son demarrage
 
-
+Autres DEFINITIONS UTILES
+- code source = texte lisible par l'humain ecrit par les programmeurs
 
 
 DNS (Domain Name System ou systeme de nom de domaine)
@@ -90,3 +107,67 @@ C'est un système de traduction indispensable dans un réseau informatique.
 
 Dans Inception, Docker possède son propre DNS interne.
 
+
+
+
+
+#Code source de Wordpress#
+
+Lors de l'installation de Wordpress, on telecharge un dossier rempli de fichiers textes, ce n'est pas un seul bloc (comme un .exe). C'est une collection de fichiers qui travaillent ensemble.
+
+#HTML (structure, squelette)
+Ce n'est pas un langage de programmation, c'est du balisage. Il dit au navigateur "Ceci est un titre", "Ceci est une image".
+ex: 
+      <h1>Bienvenue sur mon site</h1>
+      <p>Ceci est un paragraphe de texte.</p>
+
+#CSS (style, habillage)
+Ce sont des fichiers (extension .css) qui disent au navigateur comment afficher le HTML. Ex:
+  h1 {
+      color: red;
+      font-size: 20px;
+  }
+
+#PHP (la logique, le cerveau)
+C'est un programme qui ecrit du html
+Ex : <?php
+  // 1. LOGIQUE (PHP) : On définit des variables (ou on les cherche dans MariaDB)
+  $nom_utilisateur = "Erika";
+  $couleur_titre = "blue";
+?>
+
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1 style="color: <?php echo $couleur_titre; ?>;">
+      Bienvenue <?php echo $nom_utilisateur; ?> !
+    </h1>
+  </body>
+</html>
+
+Quand tu demandes cette page :
+Nginx voit l'extension .php. Il ne l'envoie pas au navigateur. Il le passe à PHP-FPM.
+PHP-FPM lit le fichier de haut en bas.
+Il exécute les instructions entre <?php ... ?>.
+Il remplace <?php echo $nom_utilisateur; ?> par "Erika".
+Il remplace <?php echo $couleur_titre; ?> par "blue".
+Il supprime toutes les balises PHP du résultat final.
+Code source reçu (HTML) :
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1 style="color: blue;">
+      Bienvenue Erika !
+    </h1>
+  </body>
+</html>
+
+
+Particularite du PHP : Contrairement au C++ que tu dois compiler (transformer en a.out illisible) pour qu'il fonctionne, le PHP est un langage interprété. Cela signifie que le "code source" (les fichiers textes) EST le programme final.
+- Langage COMPILE = Le compilateur traduit tout le code d'un coup en langage machine (des 0 et des 1), c'est la compilation, et on oibtient un fichier binaire executable. Avantage = rapidite; inconvenient = recompilation necessaire pour une seul ligne changee
+VS
+- langage INTERPRETE = Ecriture en code comprehensible puis execution : Quand tu lances le programme, un logiciel appelé l'interpréteur (ex: le programme python ou php-fpm) lit ton fichier ligne par ligne. Le code source EST le programme. Avantage : Flexible. Tu modifies le fichier texte, tu sauvegardes, et la modification est immédiate (pas de make re); Inconvénient : Plus lent
