@@ -15,3 +15,6 @@ show databases;
 use <databaseName>;
 show tables;
 select * from <table>;
+
+verifier que le service ne parche pas en http :
+curl -v http://ele-borg.42.fr

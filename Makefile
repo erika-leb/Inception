@@ -12,6 +12,9 @@ up:
 	docker compose -f $(DOCKER_COMPOSE) up -d --build
 # 	docker compose -f $(DOCKER_COMPOSE) up --build
 
+stop:
+	docker compose -f $(DOCKER_COMPOSE) stop
+
 down:
 	docker compose -f $(DOCKER_COMPOSE) down
 
@@ -27,4 +30,4 @@ fclean: clean
 	sudo rm -rf /home/ele-borg/data/mariadb/*
 	sudo rm -rf /home/ele-borg/data/wordpress/*
 
-.PHONY: all up down re clean fclean logs 
+.PHONY: all up down re clean fclean logs stop

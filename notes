@@ -1,4 +1,4 @@
-DEFINITION
+# DEFINITION #
 
 - processus = programme en cours d'execution
 
@@ -24,7 +24,32 @@ avantages = -- regrouper plusieurs conteneurs en un projet
 -- definir les dependances (ie ordre de demarrage logique des conteneurs)
 -- lancer et arreter toute l'application en une seule commande (docker-compose up et docker-compose down)
 
-COMMANDES (en minuscule, a preceder de 'docker'):
+# Differences entre Build et RUN #
+- Phase de BUILD
+= tout ce qui est statique
+L'image doit être immuable (elle ne change plus une fois créée) et réutilisable.
+On y place les actions lourdes qui n'ont pas besoin de connaître la configuration finale pour s'exécuter :
+    *L'installation des paquets système : RUN apt-get install nginx mariadb-server -y.
+    *La copie des fichiers figés : COPY conf/nginx.conf /etc/nginx/nginx.conf.
+    *La création de l'arborescence de base : RUN mkdir -p /var/run/nginx.
+    *Le téléchargement des sources : Récupérer l'archive de WordPress avec wget et l'extraire.
+- Phase de RUN
+= tout de qui dynamique et constextuel
+Le script (souvent défini comme ENTRYPOINT) s'exécute au démarrage du conteneur. on gere alors  l'état, les variables, et les éléments extérieurs (comme les volumes):
+    * L'utilisation des variables d'environnement (.env) 
+    Le Dockerfile ne doit pas contenir tes mots de passe ou noms de domaine en dur (pour des raisons de sécurité). 
+    * L'initialisation des bases de données 
+    les volumes ne sont montés et accessibles qu'au moment du Run. Si on initialise la base de données dans le Dockerfile, les données seront écrasées par le volume au lancement.
+    * Les ajustements de permissions sur les volumes 
+    Docker monte souvent les volumes persistants avec les droits de l'utilisateur root. Le script doit faire un chown au démarrage pour donner les droits corrects à l'utilisateur du service.
+    * La vérification de l'état (Idempotence) 
+    Le script vérifie si la configuration est déjà faite grâce aux redémarrages précédents 
+
+"Si je donne cette image à un autre étudiant avec un fichier .env différent, cette action exacte doit-elle être modifiée ?"
+Non (ex: installer le paquet PHP) -> Dockerfile.
+Oui (ex: créer un utilisateur spécifique dans la base de données) -> Script
+
+# COMMANDES # (en minuscule, a preceder de 'docker'):
 - BUILD = docker build (-t nginx) srcs/requirements/nginx
   -t nginx : sert a donner un nom specifique a l'image creee
 
@@ -58,7 +83,7 @@ docker compose down (supprime conteneur et reseaux)
 docker compose down -v  (supprime aussi les volumes)
 
 
-Fonctionnement de TLS:
+# Fonctionnement de TLS: #
 la commande openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=login.42.fr/UID=login"
 permet de demander un certificat SSL (le certficat est stocke dans out et la cle dans keyout)
 1) certificat = carte d'identite
@@ -85,7 +110,7 @@ Cela permet au système de savoir si Nginx est déjà en train de tourner et de 
 Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID, il va crash instantanément avec une erreur.
 => il s'agit de modifier les dossiers systeme a l'interieur du conteneur
 
-Filesystem Hierarcy Standard (FHS); dossiers:
+# Filesystem Hierarcy Standard (FHS); # dossiers:
 -  /usr/local/bin = executables installes par l'utilisateur (localise ici ils sont appelable partout)
 - /etc = fichiers de configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
 - /var/www = dossier standard de stockage des donnees variables (ie qui changent pendant l'execution) de serveur web
@@ -94,11 +119,54 @@ Filesystem Hierarcy Standard (FHS); dossiers:
 - /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
 - /run = runtime data; contient les données valides uniquement depuis le dernier démarrage. Ce dossier est vidé automatiquement à chaque redémarrage du PC/Conteneur.
 
-Autres DEFINITIONS UTILES
+# Autres DEFINITIONS UTILES
+
 - code source = texte lisible par l'humain ecrit par les programmeurs
 
+- reverse proxy = serveur ayant pour rôle de recevoir les connexions qui viennent de l'extérieur 
 
-DNS (Domain Name System ou systeme de nom de domaine)
+- direct proxy = serveur qui agit au nom d'un client pour aller chercher des ressources sur Internet.
+Si j'envoie une requete www.google.fr, mon pc ne l'envoie pas directement a google mais au direct proxy de l'ecole qui l'autorise ou non, l'envoie a google et recupere la reponse et nous l'envoie
+Interet : anonymat (l'IP du proxy est affichee), filtrage (ex; bloquer facebook), mise en cache (si 50 pc ont demande le site, le proxy le met en cahce et l'envoie a tout le monde, cela economise de la bande passante)
+
+- systeme d'exploitation (OS) : logiciel principal qui gère un ordinateur (exemples : Linux Debian, Windows, macOS). Il fournit les services de base nécessaires pour que d'autres programmes (les applications) puissent fonctionner.
+
+- noyau (kernel) : c'est le composant central et le cœur du système d'exploitation. C'est le seul programme qui a un accès direct et un contrôle total sur les composants physiques (processeur, mémoire RAM, disque dur, carte réseau).
+
+=> Lorsqu'une application (comme Nginx) a besoin de lire un fichier sur le disque dur, elle ne peut pas le faire elle-même. Elle envoie une requête au noyau. Le noyau reçoit la requête, la valide, ordonne au disque dur physique de lire la donnée, puis renvoie la donnée à l'application.
+
+# VM vs Docker
+
+- virtualiser : créer une version logicielle et abstraite d'une ressource informatique, plutôt que d'utiliser une ressource physique réelle. C'est le fait d'utiliser du code pour simuler l'existence et le comportement d'un composant matériel ou d'un environnement logiciel.
+
+- VM = virtualiser le materiel, il s'agit d'une simulation d'ordinateur vide
+le logiciel de virtualisation (l'hyperviseur, comme VirtualBox) crée des ordinateurs simulés de toutes pièces.
+L'hyperviseur prend une portion des composants physiques de la machine réelle et crée des composants virtuels isolés. Il génère un processeur virtuel, alloue un bloc de RAM virtuelle et crée un fichier qui agit comme un disque dur virtuel.
+
+- Docker = Virtualiser le système d'exploitation
+La virtualisation se produit un niveau plus haut, directement dans le système d'exploitation de la machine hôte.
+Un seul noyau divise ses ressources pour isoler des programmes, sans jamais simuler de matériel ni dupliquer le noyau.
+
+# Le passage du logiciel au materiel
+
+1. L'Appel Système (Le logiciel)
+Lorsqu'un programme (comme Nginx) a besoin d'un fichier, il exécute une fonction spécifique appelée appel système (par exemple, la fonction read()).
+- Cette fonction indique au processeur (CPU) de suspendre l'exécution du programme et de passer en "mode noyau" (Kernel mode).
+- Le noyau prend le relais avec des privilèges d'exécution maximum.
+
+2. Le Pilote de Périphérique (Le Driver)
+Le noyau ne sait pas comment faire fonctionner physiquement chaque modèle de disque dur existant. Il utilise donc un composant logiciel appelé pilote (driver).
+- Le pilote est un code fourni par le fabricant du matériel.
+- Le noyau indique au pilote quel bloc de données il veut lire.
+- Le pilote convertit cette demande générique en instructions spécifiques basées sur le protocole technique du disque (par exemple, les normes SATA ou NVMe).
+
+3. Le Bus et les Signaux Électriques (La transition physique)
+
+C'est ici que le logiciel devient matériel. Le processeur va écrire ces instructions dans des zones de mémoire spécifiques appelées "registres matériels".
+- Le processeur génère des variations de tension électrique (des 0 et des 1).
+- Ces impulsions électriques voyagent physiquement à travers des pistes de cuivre intégrées à la carte mère de l'ordinateur. L'ensemble de ces pistes de cuivre s'appelle le Bus (souvent le bus PCIe).
+
+# DNS (Domain Name System ou systeme de nom de domaine) #
 C'est un système de traduction indispensable dans un réseau informatique.
 
 - Le problème : Les ordinateurs ne communiquent qu'avec des adresses IP (ex : 192.168.1.15). Mais les humains (et les configurations logicielles) préfèrent utiliser des noms (ex : google.com ou mariadb)
@@ -109,9 +177,7 @@ Dans Inception, Docker possède son propre DNS interne.
 
 
 
-
-
-#Code source de Wordpress#
+# Code source de Wordpress #
 
 Lors de l'installation de Wordpress, on telecharge un dossier rempli de fichiers textes, ce n'est pas un seul bloc (comme un .exe). C'est une collection de fichiers qui travaillent ensemble.
 
@@ -172,6 +238,18 @@ Particularite du PHP : Contrairement au C++ que tu dois compiler (transformer en
 VS
 - langage INTERPRETE = Ecriture en code comprehensible puis execution : Quand tu lances le programme, un logiciel appelé l'interpréteur (ex: le programme python ou php-fpm) lit ton fichier ligne par ligne. Le code source EST le programme. Avantage : Flexible. Tu modifies le fichier texte, tu sauvegardes, et la modification est immédiate (pas de make re); Inconvénient : Plus lent
 
+ce que le volume Wordpress peut contenir uniquement :
+- themes (ficheir a trou) -> apparence du site
+- plugins -> fonctions supplementaires
+- medias uplaodes
+
+WordPress repose à 100% sur une base MySQL/MariaDB pour :
+- articles, pages (bd wp_posts)
+- utilisateurs (bd wp_users)
+- reglages du site (bd wp_options)
+- menus
+- contenu des plugins
+
 # Pourquoi a-t-on besoin de plusieurs processus pour faire tourner wordpress ? #
 Parce qu'un processus PHP-FPM (appelé "Worker" ou travailleur) ne peut traiter qu'une seule requête HTTP à la fois
 Dans l'architecture de PHP-FPM, il y a deux types de processus :
@@ -189,6 +267,7 @@ Lorsque Nginx tente "d'écrire" dans ce fichier .sock :
 2) Nginx veut envoyer une requête web. Il demande au noyau Linux d'ouvrir le fichier /run/php/php8.2-fpm.sock pour y écrire des données.
 3) L'interception : Le noyau Linux voit que le type de ce fichier est une socket. Au lieu de transmettre les données au disque dur, le noyau intercepte les données.
 4) Le transfert en RAM : Le noyau Linux prend les données depuis la mémoire vive (RAM) allouée à Nginx, et les injecte directement dans la mémoire vive (RAM) allouée à PHP-FPM
+
 
 
 # Les differents mode de reseaux #

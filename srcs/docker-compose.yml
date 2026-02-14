@@ -66,18 +66,17 @@ volumes:
     name: wordpress
     driver: local  #stockage local sur le pc, pas dans le cloud ou ailleurs
     driver_opts:
-      type: 'none'  #pas de type special
+      type: 'none'
       o: 'bind'     #indique a docker de faire un bind mount ie de relier le dossier de l'hote (device) a un chemin dans le conteneur
       device: '/home/ele-borg/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
   mariadb:
     name: mariadb
     driver: local
     driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/home/ele-borg/data/mariadb'
+      type: 'none' # specifique a bind; si pas de bind, ca indique ou tocker les fichiers (tmpfs = sur la RAM, nfs = sur le reseau NFS ie sur machine du reseau linux, cifs = pour partage windows)
+      o: 'bind' # si tmpfs, on peut limiter la tailledu volume de ram, si nfs ou cifs, adresse ip du serveur distant...
+      device: '/home/ele-borg/data/mariadb' #si on etait dans nfc ou cifs, ce serait le chemin du dossier sur serveur distant
 
-#voir difference entre bridge et share
 networks:
   inception:
     name: inception

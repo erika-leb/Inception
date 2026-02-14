@@ -1,3 +1,5 @@
+# La directive FROM initialise le processus de construction (build) et définit l'image de base de ton futur conteneur.
+# Le conteneur sera ainsi équipé de l'arborescence de fichiers standard et des outils de base d'un système Linux Debian
 FROM debian:bookworm
 #FROM public.ecr.aws/debian/debian:bookworm
 
@@ -25,7 +27,7 @@ COPY conf/nginx.conf /etc/nginx/nginx.conf
 # Nginx SERT le statique ie quand une requete demande un .css, .png, .js, nginx les recupere sans passer par wordpress
 # creer le dossier ici permet aussi d'eviter que dokcer ne le cree lui-meme et ne lui donne pas les bons droits
 RUN mkdir -p /var/www/wordpress
-#on change les droits de notre root principal
+# on change les droits de notre root principal
 # Nginx a besoin de lire les fichiers pour les envoyer au navigateur et d'exécuter (traverser) le dossier pour accéder à son contenu.
 RUN chmod 755 /var/www/wordpress
 #on change le proprietaire de var/www/wordpress qui passe de root a www-data(user):www-data9groupe du user)
