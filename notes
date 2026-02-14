@@ -15,7 +15,7 @@ DEFINITION
 - dependance = logiciel, bibliotheque ou outil dont un autre programme a besoin pour fonctionner correctement
 
 
-- interface ligne de commande (CLI) = interface basee sur du texte dans laquelle on peut saisir des commandes qui interagissent avec le systeme d'exploitation d'un ordinateur 
+- interface ligne de commande (CLI) = interface basee sur du texte dans laquelle on peut saisir des commandes qui interagissent avec le systeme d'exploitation d'un ordinateur
 
 - docker-compose = fichier servant a decrire une application  multi-conteneurs dans  un fichier texte puis de la lancer
 avantages = -- regrouper plusieurs conteneurs en un projet
@@ -79,20 +79,20 @@ Comment ça marche lors d’une connexion HTTPS ?
 
 Pourquoi creer un fichier /var/run/nginx ?
 Ce dossier sert à stocker ce qu'on appelle un PID file (Process ID).
--Le concept : Quand Nginx se lance, il écrit son numéro d'identité (le PID) dans un petit fichier à cet endroit précis. 
+-Le concept : Quand Nginx se lance, il écrit son numéro d'identité (le PID) dans un petit fichier à cet endroit précis.
 Cela permet au système de savoir si Nginx est déjà en train de tourner et de pouvoir l'arrêter proprement.
--Le problème Docker : Dans certaines versions de Debian/Alpine (les images de base que tu utilises pour Docker), ce dossier n'existe pas par défaut ou n'a pas les bonnes permissions. 
+-Le problème Docker : Dans certaines versions de Debian/Alpine (les images de base que tu utilises pour Docker), ce dossier n'existe pas par défaut ou n'a pas les bonnes permissions.
 Si Nginx essaie de se lancer et ne trouve pas ce dossier pour y écrire son PID, il va crash instantanément avec une erreur.
 => il s'agit de modifier les dossiers systeme a l'interieur du conteneur
 
 Filesystem Hierarcy Standard (FHS); dossiers:
 -  /usr/local/bin = executables installes par l'utilisateur (localise ici ils sont appelable partout)
 - /etc = fichiers de configuration statique (c'est ici que les logiciels comme php ou nginx cont chercher leurs reglagles au demarrage)
-- /var/www = dossier standard de stockage des donnees variables (ie qui changent pendant l'execution) de serveur web 
+- /var/www = dossier standard de stockage des donnees variables (ie qui changent pendant l'execution) de serveur web
 --/var/lib : données persistantes propres à un service
 --/var/www : convetion Lunix pour les fichiers web
 - /tmp = dossier destine aux fichiers temporaires (comme les script de config qui servent a configurer des conteneurs au demarrage, avant que le site ne tourne)
-- /run = contient les fichiers d'execution, qui sont donnees volatiles sur l'etat du systeme depuis son demarrage
+- /run = runtime data; contient les données valides uniquement depuis le dernier démarrage. Ce dossier est vidé automatiquement à chaque redémarrage du PC/Conteneur.
 
 Autres DEFINITIONS UTILES
 - code source = texte lisible par l'humain ecrit par les programmeurs
@@ -117,7 +117,7 @@ Lors de l'installation de Wordpress, on telecharge un dossier rempli de fichiers
 
 #HTML (structure, squelette)
 Ce n'est pas un langage de programmation, c'est du balisage. Il dit au navigateur "Ceci est un titre", "Ceci est une image".
-ex: 
+ex:
       <h1>Bienvenue sur mon site</h1>
       <p>Ceci est un paragraphe de texte.</p>
 
@@ -171,3 +171,51 @@ Particularite du PHP : Contrairement au C++ que tu dois compiler (transformer en
 - Langage COMPILE = Le compilateur traduit tout le code d'un coup en langage machine (des 0 et des 1), c'est la compilation, et on oibtient un fichier binaire executable. Avantage = rapidite; inconvenient = recompilation necessaire pour une seul ligne changee
 VS
 - langage INTERPRETE = Ecriture en code comprehensible puis execution : Quand tu lances le programme, un logiciel appelé l'interpréteur (ex: le programme python ou php-fpm) lit ton fichier ligne par ligne. Le code source EST le programme. Avantage : Flexible. Tu modifies le fichier texte, tu sauvegardes, et la modification est immédiate (pas de make re); Inconvénient : Plus lent
+
+# Pourquoi a-t-on besoin de plusieurs processus pour faire tourner wordpress ? #
+Parce qu'un processus PHP-FPM (appelé "Worker" ou travailleur) ne peut traiter qu'une seule requête HTTP à la fois
+Dans l'architecture de PHP-FPM, il y a deux types de processus :
+- Le processus Maître (Master Process) : Il ne traite jamais les requêtes web. Son unique travail est de surveiller le réseau et de gérer la RAM.
+- Les processus Enfants (Child Processes / Workers) : ils exécutent le code WordPress.
+
+
+# Fonctionnement de Socket Unix #
+Il s'agit d'un mécanisme de communication inter-processus (IPC) géré par le noyau Linux.
+Elle permet à deux programmes s'exécutant sur la même machine d'échanger des données
+- Dans le système de fichiers, elle se présente sous la forme d'un fichier avec une extension .sock.
+- Contrairement à un fichier texte standard, aucune donnée n'est écrite sur le disque dur physique.
+Lorsque Nginx tente "d'écrire" dans ce fichier .sock :
+1) Le processus de destination (PHP-FPM) demande au noyau Linux dede créer l'entrée /run/php/php8.2-fpm.sock dans le système de fichiers, en spécifiant que cette entrée est une socket liée à son propre processus.
+2) Nginx veut envoyer une requête web. Il demande au noyau Linux d'ouvrir le fichier /run/php/php8.2-fpm.sock pour y écrire des données.
+3) L'interception : Le noyau Linux voit que le type de ce fichier est une socket. Au lieu de transmettre les données au disque dur, le noyau intercepte les données.
+4) Le transfert en RAM : Le noyau Linux prend les données depuis la mémoire vive (RAM) allouée à Nginx, et les injecte directement dans la mémoire vive (RAM) allouée à PHP-FPM
+
+
+# Les differents mode de reseaux #
+
+1) Mode bridge (par defaut dans Docker)
+Chaque conteneur reçoit une adresse IP privée dans un sous-réseau spécifique
+Les conteneurs sont isolés du réseau physique de la VM. Pour qu'un service soit accessible depuis l'extérieur de la VM (ou depuis la VM elle-même), il faut effectuer un mappage de ports (ex: -p 80:80).
+Communication :
+- Bridge par défaut : Les conteneurs communiquent via leurs adresses IP uniquement.
+- User-defined Bridge (celui d'Inception) : Docker active un résolveur DNS interne. Cela permet à wordpress de contacter mariadb en utilisant le nom du service, sans connaître son IP.
+
+2) Mode host
+Ce mode supprime l'isolation réseau entre le conteneur et la VM
+Le conteneur n'a pas sa propre adresse IP. Il utilise directement l'adresse IP de la VM.
+Pas de translation de port (NAT)
+Rapide car pas de surcharge lie a la virtualisation reseau mais moins securise et flexible
+
+3) Mode None
+= Aucune connectivité réseau du conteneur.
+Le conteneur possède une interface de boucle locale (lo / 127.0.0.1), mais aucune interface réseau externe (pas de eth0).
+Utile pour des conteneurs qui effectuent des calculs isolés ou des tâches de traitement de fichiers ne nécessitant aucun accès réseau (sécurité maximale).
+
+4) Mode Overlay
+Ce mode est utilisé pour la communication entre conteneurs situés sur des hôtes (VM) différents.
+Il crée un réseau virtuel au-dessus des réseaux des hôtes physiques.
+
+5) Le mode Macvlan
+Ce mode permet de donner une adresse MAC directement au conteneur.
+Le conteneur apparaît comme un équipement physique réel sur le réseau local de la box ou du routeur, comme la VM elle-même.
+Usage : Très spécifique, utilisé quand des applications héritées (legacy) ont besoin d'être connectées directement au réseau physique sans passer par le NAT de Docker.
