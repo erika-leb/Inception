@@ -1,5 +1,6 @@
 
-- relire mon code pour tout comprendre
+-  faire test pour changer port nginx
+- verifier si c est normal le mdp en debut de make re
 - lire le code de thomas pour le comprendre (et eventuellement a;eliorer le mien)
 - preparer la VM pour push (ne pa soublier d'enlever tous les elements secrets)
 - faire les tests de la correction

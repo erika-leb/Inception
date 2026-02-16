@@ -33,6 +33,8 @@ services:
       - wordpress
     build:
       context: ./requirements/nginx
+      args:
+        - DOMAIN_NAME=${DOMAIN_NAME}
     env_file: .env    
     volumes:
       - wordpress:/var/www/wordpress
@@ -59,7 +61,7 @@ services:
       - wordpress:/var/www/wordpress
     restart: on-failure  #redemarre si crash
     expose:
-      - "9000" #port expose a la machine local"
+      - "9000" #port expose aux autres conteneurs de ce reseau virtuel"
 
 volumes:
   wordpress:
@@ -68,14 +70,14 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'     #indique a docker de faire un bind mount ie de relier le dossier de l'hote (device) a un chemin dans le conteneur
-      device: '/home/ele-borg/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
+      device: '/home/$LOGIN/data/wordpress' #chemin exact ou va etre stocke la donne du conteneur
   mariadb:
     name: mariadb
     driver: local
     driver_opts:
       type: 'none' # specifique a bind; si pas de bind, ca indique ou tocker les fichiers (tmpfs = sur la RAM, nfs = sur le reseau NFS ie sur machine du reseau linux, cifs = pour partage windows)
       o: 'bind' # si tmpfs, on peut limiter la tailledu volume de ram, si nfs ou cifs, adresse ip du serveur distant...
-      device: '/home/ele-borg/data/mariadb' #si on etait dans nfc ou cifs, ce serait le chemin du dossier sur serveur distant
+      device: '/home/$LOGIN/data/mariadb' #si on etait dans nfc ou cifs, ce serait le chemin du dossier sur serveur distant
 
 networks:
   inception:

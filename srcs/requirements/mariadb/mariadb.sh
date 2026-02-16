@@ -1,6 +1,28 @@
-# Récupération des secrets
-SQL_ROOT_PASSWORD=$(cat /run/secrets/sql_root_password)
-SQL_PASSWORD=$(cat /run/secrets/sql_password)
+# Verification et verification des secrets et variables d'environnement
+if [ -f /run/secrets/sql_root_password ]; then
+    SQL_ROOT_PASSWORD=$(cat /run/secrets/sql_root_password)
+else
+    echo "Error: required secret: SQL_ROOT_PASSWORD"
+    exit 1
+fi
+
+if [ -f /run/secrets/sql_password ]; then 
+    SQL_PASSWORD=$(cat /run/secrets/sql_password)
+else
+    echo "Error: required secret: SQL_PASSWORD"
+    exit 1
+fi
+
+if [ -z "${SQL_DATABASE}" ] || [ -z "${SQL_USER}" ]; then
+    echo "Error: SQL_DATABASE or SQL_USER not set"
+    exit 1
+fi
+
+# cree le dossier ou sera stocke le socket de communication interne (parfois il n'est pas installe par mariadb)
+# utile pour la portabilite
+mkdir -p /run/mysql
+chown mysql:mysql /run/mysql
+chmod 755 -R /run/mysql
 
 # commande pour verifier l'existence du dossier /var/lib/mysql/$SQL_DATABASE (/var/lib/mysql/ est le chemin standard ou mariadb sotcker ses donnees)
 # [] n'est pas une syntaxe mais une commande a part entiere (les espaces sont importants pour la syntaxe), un programme executable alias de la commande test
@@ -9,8 +31,10 @@ if [ -d "/var/lib/mysql/$SQL_DATABASE" ]; then
 else
     echo "Première installation. Initialisation..."
     
-    # démarrage du service
-    service mariadb start
+    # démarrage de mysql en arriere plan
+    # Sans le &, le script resterait bloqué sur le démarrage du serveur et n'exécuterait jamais la suite de la configuration SQL
+    mysqld_safe --datadir=/var/lib/mysql &
+    # service mariadb start
     
     # ATTENTE ACTIVE : On attend que le serveur soit réellement prêt
     # sleep 10
@@ -24,6 +48,8 @@ else
     mariadb -u root -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
     mariadb -u root -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
     mariadb -u root -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%';"
+    # le systeme de permission de Mariadb Est sotcke sur le disque et est copie sur la RAM a chaque run
+    # cette commande force mariadb a purger la RAM de cette table de persission et de la recharger integralement
     mariadb -u root -e "FLUSH PRIVILEGES;"
 
     # Sécurisation du compte Root (changement du mdp de root qui maintnt)
@@ -44,7 +70,7 @@ fi
 # exec <programme> est une commande qui remplace le processus actuel par <programme> 
 # (sans exec le nouveau processus serait un processus enfant); le gardant en PID 1
 echo "Démarrage définitif de MariaDB..."
-exec mysqld
+exec mysqld --user=mysql
 
 
 

@@ -1,14 +1,39 @@
-#!/bin/bash
+# Verification et verification des secrets et variables d'environnement
+if [ -f /run/secrets/sql_password ]; then
+    SQL_PASSWORD=$(cat /run/secrets/sql_password)
+else
+    echo "Error: required secret: SQL_PASSWORD"
+    exit 1
+fi
 
-# until mysqladmin ping -h mariadb --silent; do
-#     echo "Waiting for MariaDB..."
-#     sleep 3
-# done
+if [ -f /run/secrets/wp_admin_password ]; then 
+    WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+else
+    echo "Error: required secret: WP_ADMIN_PASSWORD"
+    exit 1
+fi
 
-# Récupération des secrets
-SQL_PASSWORD=$(cat /run/secrets/sql_password)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
-WP_PASSWORD=$(cat /run/secrets/wp_password)
+if [ -f /run/secrets/wp_password ]; then 
+    WP_PASSWORD=$(cat /run/secrets/wp_password)
+else
+    echo "Error: required secret: WP_PASSWORD"
+    exit 1
+fi
+
+if [ -z "${SQL_DATABASE}" ] || [ -z "${SQL_USER}" ] || [ -z "${DOMAIN_NAME}" ] ; then
+    echo "Error: SQL_DATABASE or SQL_USER or DOMAIN_NAME not set"
+    exit 1
+fi
+
+if [ -z "${WP_TITLE}" ] || [ -z "${WP_ADMIN}" ] || [ -z "${WP_ADMIN_EMAIL}" ] ; then
+    echo "Error: WP_TITLE or WP_ADMIN or WP_ADMIN_EMAIL not set"
+    exit 1
+fi
+
+if [ -z "${WP_USER}" ] || [ -z "${WP_USER_EMAIL}" ] ; then
+    echo "Error: WP_USER or WP_USER_EMAIL not set"
+    exit 1
+fi
 
 
 # echo "Waiting for Mariadb... (20s)"
@@ -34,7 +59,11 @@ if [ ! -f wp-config.php ]; then
                         --dbhost=mariadb:3306
 fi
 
-#Installer wordpress (remplissage de la base de donnees)
+#Installer wordpress ie remplissage de la base de donnees:
+# * recuperation des identifiants dans wp-config.php
+# * ouverture d'un socket vers le port 3306 du conteneur mariadb
+# * Exécution du DDL (Data Definition Language) : série de requêtes CREATE TABLE à MariaDB pour générer la structure exacte attendue par le code PHP (environ 12 tables)
+# * Exécution du DML (Data Manipulation Language) : prend les arguments passés dans ta commande (--url, --title, --admin_user, etc.) et exécute des requêtes INSERT INTO pour peupler ces nouvelles tables.
 # - if ! wp core is-installed --allow-root demande d'executer wp en lancant la commande core is_installed qui renvoie 0 si wordpress est installe et 1 sinon (echec)
 # Cette commande se connecte à la base de données (grâce au wp-config.php généré juste avant) et vérifie si les tables WordPress existent déjà.
 # - la commande wp core install transforme une base de données vide en un site WordPress fonctionnel et cree un super user qui a tous les droits

@@ -15,6 +15,7 @@ To set up the development environment from scratch, follow these steps:
 
 **2. Configuration Files**
 Create a `.env` file at the root with thefollowing data :
+LOGIN=ele-borg
 SQL_DATABASE=[db_name]
 SQL_USER=[user_name]
 SQL_HOST=mariadb
@@ -28,11 +29,6 @@ Sensitive data is managed via the `secrets/` directory. Create this folder at th
 * `sql_password.txt`: The database user password.
 * `sql_root_password.txt`: The database root password.
 * `wp_password.txt`: The WordPress administrator password.
-
-**4. Data persistence and volumes**
-Storage Locations Volumes are bind-mounted to the host. Important: You must adapt these paths in **docker-compose.yml** and **Makefile** to match your current system user (e.g., replace [user] with ele-borg or erika).
-- MariaDB data → /home/[user]/data/mariadb
-- WordPress data → /home/[user]/data/wordpress
 
 ---
 

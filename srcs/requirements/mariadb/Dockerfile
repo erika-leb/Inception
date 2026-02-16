@@ -1,8 +1,12 @@
 FROM debian:bookworm
 #FROM public.ecr.aws/debian/debian:bookworm
 
-RUN apt update && apt upgrade -y
-RUN apt-get install mariadb-server -y
+# apt update telecharge la liste des paquets a jour depuis les depots distants
+# apt upgrade met a jour tous les pauqets deja present dans l'image vers leurs dernieres versions de securite
+# rm -rf /var/lib/apt/lists/* supprime la liste des paquets telechargee
+RUN apt update && apt-get install mariadb-server -y && \
+    apt upgrade && apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY conf/mariadb.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 COPY mariadb.sh /tmp/mariadb.sh

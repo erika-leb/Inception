@@ -49,6 +49,12 @@ Le script (souvent défini comme ENTRYPOINT) s'exécute au démarrage du contene
 Non (ex: installer le paquet PHP) -> Dockerfile.
 Oui (ex: créer un utilisateur spécifique dans la base de données) -> Script
 
+# differences enter Dockerfile et docker-compose
+- Dockerfile : cript de compilation. Il genere une image, sorte d'executable.
+Une fois le docker build terminé, l'image est un objet immuable.
+- Docker compose : fichier de configuration déclaratif
+Son rôle n'est pas de construire le système de fichiers, mais de définir les règles selon lesquelles le démon Docker doit instancier et exécuter ces images sous forme de conteneurs.
+
 # COMMANDES # (en minuscule, a preceder de 'docker'):
 - BUILD = docker build (-t nginx) srcs/requirements/nginx
   -t nginx : sert a donner un nom specifique a l'image creee

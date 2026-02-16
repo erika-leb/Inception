@@ -27,6 +27,7 @@ The setup consists of multiple services running in separate containers, managed 
 1.  Clone the repository.
 
 2.  Create a `.env` file at the root with thefollowing data :
+    LOGIN=ele-borg
     SQL_DATABASE=[db_name]
     SQL_USER=[user_name]
     SQL_HOST=mariadb
@@ -37,12 +38,7 @@ The setup consists of multiple services running in separate containers, managed 
 
 3. Create a `secrets` folder at the root with 3 files (`sql_password.txt`, `sql_root_password.txt` and `wp_password.txt`) and write down in every file the password of your choice.
 
-4.  Volumes are bind-mounted to the host system. You must adapt the paths in `docker-compose.yml` and `Makefile` to match your current system user to avoid "Permission Denied" errors.
-- MariaDB data → /home/[user]/data/mariadb
-- WordPress data → /home/[user]/data/wordpress
-To identify your current username, run the following command in your terminal: whoami
-
-5.  Add the domain to your host file:
+4.  Add the domain to your host file:
     enter the command 'sudo nano /etc/hosts' in your terminal and write down the line "127.0.0.1 ele-borg.42.fr" in the file
 
 ### Execution
