@@ -40,7 +40,7 @@ services:
       - wordpress:/var/www/wordpress
     restart: on-failure
     ports:
-      - "443:443" #ouvre le port 443 sur l'adresse IP de la VM et le relie au port 443 du conteneur"
+      - "443:443" # (port_hote:port_conteneur)ouvre le port 443 sur l'adresse IP de la VM et le relie au port 443 du conteneur"
 
   wordpress:
     container_name: wordpress

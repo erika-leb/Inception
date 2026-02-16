@@ -88,6 +88,24 @@ docker compose start
 docker compose down (supprime conteneur et reseaux)
 docker compose down -v  (supprime aussi les volumes)
 
+# Fonctionnement particulier du build Docker
+
+- Script normal 
+lorsqu'un script s'exécute sur une VM (sans conteneurisation), le shell lance un processus. Ce processus communique directement avec le noyau Linux via des appels système (System Calls).
+Il n'y a aucune couche d'abstraction ou d'isolation. 
+Chaque commande modifie l'espace de stockage principal en continu. Si une commande supprime ou modifie un fichier, la version précédente est immédiatement écrasée et perdue.
+=> Un environnement unique et persistant subit une suite continue de mutations
+
+- Build Docker 
+Avec un Dockerfile, le processus est segmenté :
+* Docker lit une instruction (par exemple, RUN apt install nginx).
+* Il exécute cette commande.
+* Une fois la commande terminée, Docker scanne le système pour identifier strictement les fichiers qui ont été ajoutés ou modifiés durant cette étape (avec un diff).
+* Il prend ces fichiers spécifiques et les enregistre dans un nouveau répertoire physique sur votre machine hôte.
+* Ce répertoire est ensuite verrouillé de façon permanente en lecture seule. C'est ce qu'on appelle une "couche" (layer).
+Avantages:
+* optimisation du temps : Si la ligne 50 du Dockerfile est modifiee, Docker réutilise instantanément les 49 répertoires verrouillés qu'il a déjà générés précédemment. La compilation reprend directement à la ligne 50.
+* optimisation de l'espace : Si les  conteneurs commencent tous par la ligne FROM debian:bookworm, Docker ne stockera les fichiers du système Debian qu'une seule fois sur le disque dur. Les conteneurs liront les données depuis ce même répertoire partagé
 
 # Fonctionnement de TLS: #
 la commande openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=login.42.fr/UID=login"
