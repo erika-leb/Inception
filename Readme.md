@@ -36,7 +36,7 @@ The setup consists of multiple services running in separate containers, managed 
     WP_EMAIL=[mail]
     DOMAIN_NAME=ele-borg.42.fr
 
-3. Create a `secrets` folder at the root with 3 files (`sql_password.txt`, `sql_root_password.txt` and `wp_password.txt`) and write down in every file the password of your choice.
+3. Create a `secrets` folder at the root with 3 files (`sql_password.txt`, `sql_root_password.txt`, `wp_root_password` and `wp_password.txt`) and write down in every file the password of your choice.
 
 4.  Add the domain to your host file:
     enter the command 'sudo nano /etc/hosts' in your terminal and write down the line "127.0.0.1 ele-borg.42.fr" in the file

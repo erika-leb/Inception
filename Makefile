@@ -7,12 +7,13 @@ all: up
 build:
 	docker compose -f $(DOCKER_COMPOSE) build
 
-#Docker va cree automatiquement les fichier si je ne le fait mais avec les droits root, je ne pourrais pas forcement y acceder en tant q'utilisateur
 up:
 	sudo mkdir -p /home/${LOGIN}/data/mariadb
 	sudo mkdir -p /home/${LOGIN}/data/wordpress
 	docker compose -f $(DOCKER_COMPOSE) up -d --build
-# 	docker compose -f $(DOCKER_COMPOSE) up --build
+
+start:
+	docker compose -f $(DOCKER_COMPOSE) start
 
 stop:
 	docker compose -f $(DOCKER_COMPOSE) stop
@@ -29,7 +30,7 @@ clean:
 	docker compose -f $(DOCKER_COMPOSE) down -v --remove-orphans
 	
 fclean: clean
-	sudo rm -rf /home/ele-borg/data/mariadb/*
-	sudo rm -rf /home/ele-borg/data/wordpress/*
+	sudo rm -rf /home/${LOGIN}/data/mariadb/*
+	sudo rm -rf /home/${LOGIN}/data/wordpress/*
 
-.PHONY: all up down re clean fclean logs stop
+.PHONY: all up down re clean fclean logs stop start

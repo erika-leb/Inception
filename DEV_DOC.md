@@ -28,7 +28,8 @@ DOMAIN_NAME=ele-borg.42.fr
 Sensitive data is managed via the `secrets/` directory. Create this folder at the root and add the following files:
 * `sql_password.txt`: The database user password.
 * `sql_root_password.txt`: The database root password.
-* `wp_password.txt`: The WordPress administrator password.
+* `wp_root_password.txt`: The WordPress administrator password.
+* `wp_password.txt`: The WordPress user password.
 
 ---
 

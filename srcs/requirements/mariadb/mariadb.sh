@@ -20,9 +20,9 @@ fi
 
 # cree le dossier ou sera stocke le socket de communication interne (parfois il n'est pas installe par mariadb)
 # utile pour la portabilite
-mkdir -p /run/mysql
-chown mysql:mysql /run/mysql
-chmod 755 -R /run/mysql
+mkdir -p /run/mysqld
+chown mysql:mysql /run/mysqld
+chmod 755 -R /run/mysqld
 
 # commande pour verifier l'existence du dossier /var/lib/mysql/$SQL_DATABASE (/var/lib/mysql/ est le chemin standard ou mariadb sotcker ses donnees)
 # [] n'est pas une syntaxe mais une commande a part entiere (les espaces sont importants pour la syntaxe), un programme executable alias de la commande test
